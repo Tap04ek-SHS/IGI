@@ -13,4 +13,4 @@ COPY . .
 RUN DEBUG=False SECRET_KEY=build-secret ALLOWED_HOSTS=localhost python manage.py collectstatic --noinput
 
 EXPOSE 8000
-CMD ["gunicorn", "lab5.wsgi:application", "--bind", "0.0.0.0:8000"]
+CMD ["sh", "-c", "python manage.py migrate && python manage.py seed_data && gunicorn lab5.wsgi:application --bind 0.0.0.0:${PORT:-8000}"]

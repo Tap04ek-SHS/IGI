@@ -28,12 +28,16 @@ SECRET_KEY = os.getenv('SECRET_KEY', 'django-insecure-5a!y&=rsn5!!if6ig%*515))b_
 DEBUG = os.getenv('DEBUG', 'True').lower() in {'1', 'true', 'yes'}
 
 ALLOWED_HOSTS = [host for host in os.getenv('ALLOWED_HOSTS', '127.0.0.1,localhost').split(',') if host]
-render_external_hostname = os.getenv('RENDER_EXTERNAL_HOSTNAME')
-if render_external_hostname:
-    ALLOWED_HOSTS.append(render_external_hostname)
-    CSRF_TRUSTED_ORIGINS = [f'https://{render_external_hostname}']
-else:
-    CSRF_TRUSTED_ORIGINS = []
+platform_hosts = [
+    host
+    for host in (
+        os.getenv('RENDER_EXTERNAL_HOSTNAME'),
+        os.getenv('RAILWAY_PUBLIC_DOMAIN'),
+    )
+    if host
+]
+ALLOWED_HOSTS.extend(platform_hosts)
+CSRF_TRUSTED_ORIGINS = [f'https://{host}' for host in platform_hosts]
 CSRF_TRUSTED_ORIGINS = [
     *CSRF_TRUSTED_ORIGINS,
     *[origin for origin in os.getenv('CSRF_TRUSTED_ORIGINS', '').split(',') if origin],
