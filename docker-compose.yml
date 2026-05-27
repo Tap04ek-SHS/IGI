@@ -1,0 +1,31 @@
+services:
+  web:
+    build: .
+    image: tapochek/lab5-realty:latest
+    command: sh -c "python manage.py migrate && python manage.py seed_data && gunicorn lab5.wsgi:application --bind 0.0.0.0:8000"
+    environment:
+      DEBUG: "False"
+      SECRET_KEY: "change-me-in-production"
+      ALLOWED_HOSTS: "localhost,127.0.0.1"
+      DATABASE_URL: "postgres://lab5:lab5@db:5432/lab5"
+      LOG_LEVEL: "INFO"
+      SERVE_MEDIA: "True"
+    ports:
+      - "8000:8000"
+    volumes:
+      - media_data:/app/media
+    depends_on:
+      - db
+
+  db:
+    image: postgres:17
+    environment:
+      POSTGRES_DB: lab5
+      POSTGRES_USER: lab5
+      POSTGRES_PASSWORD: lab5
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+
+volumes:
+  postgres_data:
+  media_data:

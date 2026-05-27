@@ -1,0 +1,22 @@
+{% extends "base.html" %}
+{% block title %}Продажи{% endblock %}
+{% block content %}
+<h1>Продажи</h1>
+<p><a href="{% url 'sale_create' %}">Добавить продажу</a></p>
+<table>
+    <tr><th>Объект</th><th>Покупатель</th><th>Сотрудник</th><th>Дата продажи</th><th>Договор</th><th>Сумма</th><th></th></tr>
+    {% for sale in sales %}
+        <tr>
+            <td>{{ sale.property.title }}</td>
+            <td>{{ sale.buyer.full_name }}</td>
+            <td>{{ sale.employee }}</td>
+            <td>{{ sale.sold_at|date:"d/m/Y" }}</td>
+            <td>{{ sale.contract_date|date:"d/m/Y" }}</td>
+            <td>{{ sale.final_price }} BYN</td>
+            <td><a href="{% url 'sale_update' sale.pk %}">Изменить</a> <a href="{% url 'sale_delete' sale.pk %}">Удалить</a></td>
+        </tr>
+    {% empty %}
+        <tr><td colspan="7">Продаж пока нет.</td></tr>
+    {% endfor %}
+</table>
+{% endblock %}

@@ -1,0 +1,17 @@
+{% extends "base.html" %}
+{% block title %}Новости{% endblock %}
+{% block content %}
+<h1>Новости</h1>
+<ul>
+    {% for article in articles %}
+        <li>
+            <h2><a href="{{ article.get_absolute_url }}">{{ article.title }}</a></h2>
+            <p><img src="{{ article.display_image_url }}" alt="{{ article.title }}" width="240"></p>
+            <p>{{ article.summary }}</p>
+            <p>{{ article.published_at|date:"d/m/Y" }}</p>
+        </li>
+    {% empty %}
+        <li>Новостей пока нет.</li>
+    {% endfor %}
+</ul>
+{% endblock %}

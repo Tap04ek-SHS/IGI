@@ -1,0 +1,8 @@
+.coverage
+db.sqlite3
+htmlcov/
+staticfiles/
+media/
+__pycache__/
+*.pyc
+.venv/

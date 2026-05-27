@@ -1,0 +1,16 @@
+{% extends "base.html" %}
+{% block title %}Дата и время{% endblock %}
+{% block content %}
+<h1>Дата, время и календарь</h1>
+<form method="get">
+    <label>Тайм зона пользователя</label>
+    <input name="tz" value="{{ tz_name }}" placeholder="Europe/Minsk">
+    <button type="submit">Показать</button>
+</form>
+<table>
+    <tr><th>UTC</th><td>{{ now_utc|date:"d/m/Y H:i:s" }}</td></tr>
+    <tr><th>{{ tz_name }}</th><td>{{ now_local|date:"d/m/Y H:i:s" }}</td></tr>
+</table>
+<h2>Календарь</h2>
+<pre>{{ text_calendar }}</pre>
+{% endblock %}

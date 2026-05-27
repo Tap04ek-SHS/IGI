@@ -1,0 +1,29 @@
+{% extends "base.html" %}
+{% block title %}Главная{% endblock %}
+{% block content %}
+<h1>Риэлтерское агентство</h1>
+<h2>Последняя статья</h2>
+{% if latest_article %}
+    <article>
+        <h3><a href="{{ latest_article.get_absolute_url }}">{{ latest_article.title }}</a></h3>
+        <p>{{ latest_article.summary }}</p>
+        <p>Опубликовано: {{ latest_article.published_at|date:"d/m/Y H:i" }}</p>
+    </article>
+{% else %}
+    <p>Статьи пока не опубликованы.</p>
+{% endif %}
+
+<h2>Актуальные объекты</h2>
+<ul>
+    {% for item in featured_properties %}
+        <li>
+            <h3><a href="{{ item.get_absolute_url }}">{{ item.title }}</a></h3>
+            <p><img src="{{ item.display_image_url }}" alt="{{ item.title }}" width="240"></p>
+            <p>{{ item.category.name }} · {{ item.city }}</p>
+            <p><strong>{{ item.price }} BYN</strong></p>
+        </li>
+    {% empty %}
+        <li>Нет объектов в продаже.</li>
+    {% endfor %}
+</ul>
+{% endblock %}
