@@ -117,6 +117,14 @@ docker compose up --build
    - `LOG_LEVEL=INFO`
    - `MEDIA_ROOT=/opt/render/project/src/media`
    - `SERVE_MEDIA=True`
+
+Не копируйте в Render значение из `docker-compose.yml`:
+
+```text
+postgres://lab5:lab5@db:5432/lab5
+```
+
+Хост `db` существует только внутри Docker Compose. На Render он вызовет ошибку `Name or service not known`. Для Render нужен именно `Internal Database URL` из созданной Render PostgreSQL базы.
 6. После деплоя открыть Render Shell и при необходимости создать своего админа:
 
 ```bash
