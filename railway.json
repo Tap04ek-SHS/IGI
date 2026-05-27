@@ -1,0 +1,14 @@
+{
+  "$schema": "https://railway.com/railway.schema.json",
+  "build": {
+    "buildCommand": "cd IGI/Lab5 && pip install -r requirements.txt && python manage.py collectstatic --noinput",
+    "watchPatterns": [
+      "IGI/Lab5/**"
+    ]
+  },
+  "deploy": {
+    "startCommand": "cd IGI/Lab5 && python manage.py migrate && python manage.py seed_data && gunicorn lab5.wsgi:application --bind 0.0.0.0:$PORT",
+    "restartPolicyType": "ON_FAILURE",
+    "restartPolicyMaxRetries": 10
+  }
+}
