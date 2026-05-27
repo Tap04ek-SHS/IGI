@@ -1,0 +1,19 @@
+{% extends "base.html" %}
+{% block title %}Отзывы{% endblock %}
+{% block content %}
+<h1>Отзывы</h1>
+{% if user.is_authenticated %}
+    <p><a href="{% url 'review_create' %}">Добавить отзыв</a></p>
+{% else %}
+    <p><a href="{% url 'login' %}">Войти, чтобы добавить отзыв</a></p>
+{% endif %}
+{% for review in reviews %}
+    <section>
+        <h2>{{ review.name }} - {{ review.rating }}/5</h2>
+        <p>{{ review.text }}</p>
+        <p>{{ review.added_at|date:"d/m/Y" }}</p>
+    </section>
+{% empty %}
+    <p>Отзывов пока нет.</p>
+{% endfor %}
+{% endblock %}

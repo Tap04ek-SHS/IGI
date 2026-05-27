@@ -1,0 +1,26 @@
+services:
+  - type: web
+    name: lab5-realty
+    runtime: python
+    buildCommand: ./build.sh
+    startCommand: python manage.py migrate && python manage.py seed_data && gunicorn lab5.wsgi:application --bind 0.0.0.0:$PORT
+    envVars:
+      - key: DEBUG
+        value: "False"
+      - key: SECRET_KEY
+        generateValue: true
+      - key: DATABASE_URL
+        fromDatabase:
+          name: lab5-realty-db
+          property: connectionString
+      - key: LOG_LEVEL
+        value: "INFO"
+      - key: MEDIA_ROOT
+        value: /opt/render/project/src/media
+      - key: SERVE_MEDIA
+        value: "True"
+
+databases:
+  - name: lab5-realty-db
+    databaseName: lab5
+    user: lab5

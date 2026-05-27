@@ -1,0 +1,10 @@
+.git
+.idea
+.venv
+db.sqlite3
+__pycache__
+*.pyc
+htmlcov
+.coverage
+staticfiles
+media

@@ -1,0 +1,66 @@
+{% extends "base.html" %}
+{% block title %}Объекты недвижимости{% endblock %}
+{% block content %}
+<h1>Объекты недвижимости</h1>
+{% if user.is_staff %}<p><a href="{% url 'property_create' %}">Добавить объект</a></p>{% endif %}
+<form method="get">
+    <label>Поиск</label>
+    <input type="search" name="q" value="{{ current_query }}" placeholder="Название, адрес, владелец">
+    <label>Категория</label>
+    <select name="category">
+        <option value="">Все</option>
+        {% for category in categories %}
+            <option value="{{ category.id }}" {% if current_category == category.id|stringformat:"s" %}selected{% endif %}>{{ category.name }}</option>
+        {% endfor %}
+    </select>
+    <label>Город</label>
+    <input type="search" name="city" value="{{ current_city }}" placeholder="Минск">
+    <label>Статус</label>
+    <select name="status">
+        <option value="">Все</option>
+        {% for value, label in statuses %}
+            <option value="{{ value }}" {% if current_status == value %}selected{% endif %}>{{ label }}</option>
+        {% endfor %}
+    </select>
+    <label>Комнат</label>
+    <input type="number" name="rooms" min="1" value="{{ current_rooms }}">
+    <label>Цена от</label>
+    <input type="number" name="price_from" min="0" step="0.01" value="{{ current_price_from }}">
+    <label>Цена до</label>
+    <input type="number" name="price_to" min="0" step="0.01" value="{{ current_price_to }}">
+    <label>Сортировка</label>
+    <select name="sort">
+        <option value="title" {% if current_sort == "title" %}selected{% endif %}>Название</option>
+        <option value="price" {% if current_sort == "price" %}selected{% endif %}>Цена</option>
+        <option value="area" {% if current_sort == "area" %}selected{% endif %}>Площадь</option>
+        <option value="category" {% if current_sort == "category" %}selected{% endif %}>Категория</option>
+        <option value="status" {% if current_sort == "status" %}selected{% endif %}>Статус</option>
+        <option value="city" {% if current_sort == "city" %}selected{% endif %}>Город</option>
+        <option value="rooms" {% if current_sort == "rooms" %}selected{% endif %}>Комнат</option>
+    </select>
+    <button type="submit">Применить</button>
+</form>
+
+<table>
+    <tr><th>Картинка</th><th>Название</th><th>Категория</th><th>Адрес</th><th>Цена</th><th>Статус</th><th>Изменено</th><th></th></tr>
+    {% for item in properties %}
+        <tr>
+            <td><img src="{{ item.display_image_url }}" alt="{{ item.title }}" width="160"></td>
+            <td><a href="{{ item.get_absolute_url }}">{{ item.title }}</a></td>
+            <td>{{ item.category.name }}</td>
+            <td>{{ item.city }}, {{ item.address }}</td>
+            <td>{{ item.price }} BYN</td>
+            <td>{{ item.get_status_display }}</td>
+            <td>{{ item.updated_at|date:"d/m/Y H:i" }}</td>
+            <td>
+                {% if user.is_staff %}
+                    <a href="{% url 'property_update' item.pk %}">Изменить</a>
+                    <a href="{% url 'property_delete' item.pk %}">Удалить</a>
+                {% endif %}
+            </td>
+        </tr>
+    {% empty %}
+        <tr><td colspan="8">Объекты не найдены.</td></tr>
+    {% endfor %}
+</table>
+{% endblock %}

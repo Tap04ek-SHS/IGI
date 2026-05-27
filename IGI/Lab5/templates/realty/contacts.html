@@ -1,0 +1,19 @@
+{% extends "base.html" %}
+{% block title %}Контакты{% endblock %}
+{% block content %}
+<h1>Контакты сотрудников</h1>
+<ul>
+    {% for employee in employees %}
+        <li>
+            <h2>{{ employee.last_name }} {{ employee.first_name }}</h2>
+            <p><img src="{{ employee.display_photo_url }}" alt="{{ employee.last_name }} {{ employee.first_name }}" width="240"></p>
+            <p>{{ employee.job_title }}</p>
+            <p>{{ employee.responsibilities }}</p>
+            <p>Телефон: {{ employee.phone }}</p>
+            <p>Email: <a href="mailto:{{ employee.email }}">{{ employee.email }}</a></p>
+        </li>
+    {% empty %}
+        <li>Сотрудники пока не добавлены.</li>
+    {% endfor %}
+</ul>
+{% endblock %}

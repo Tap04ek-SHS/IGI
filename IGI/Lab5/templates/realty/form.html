@@ -1,0 +1,10 @@
+{% extends "base.html" %}
+{% block title %}{{ title|default:"Форма" }}{% endblock %}
+{% block content %}
+<h1>{{ title|default:"Форма" }}</h1>
+<form method="post" enctype="multipart/form-data">
+    {% csrf_token %}
+    {{ form.as_p }}
+    <button type="submit">Сохранить</button>
+</form>
+{% endblock %}

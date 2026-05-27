@@ -1,0 +1,20 @@
+{% extends "base.html" %}
+{% block title %}Покупка объекта{% endblock %}
+{% block content %}
+<h1>Покупка объекта</h1>
+<section>
+    <h2>{{ property.title }}</h2>
+    <p>{{ property.city }}, {{ property.address }}</p>
+    <p><strong>{{ property.price }} BYN</strong></p>
+    {% if property.status == "active" %}
+        <form method="post" action="{% url 'property_buy' property.pk %}">
+            {% csrf_token %}
+            <button type="submit">Подтвердить покупку</button>
+            <a href="{{ property.get_absolute_url }}">Отмена</a>
+        </form>
+    {% else %}
+        <p>Этот объект уже недоступен для покупки.</p>
+        <p><a href="{% url 'property_list' %}">Вернуться к списку</a></p>
+    {% endif %}
+</section>
+{% endblock %}

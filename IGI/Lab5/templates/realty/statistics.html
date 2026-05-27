@@ -1,0 +1,50 @@
+{% extends "base.html" %}
+{% block title %}Статистика{% endblock %}
+{% block content %}
+<h1>Статистика агентства</h1>
+<ul>
+    <li>Общая сумма продаж: {{ total_sales }} BYN</li>
+    <li>Средняя сумма: {{ average_sale|floatformat:2 }} BYN</li>
+    <li>Медиана: {{ median_sale|floatformat:2 }} BYN</li>
+    <li>Мода: {{ mode_sale|floatformat:2 }} BYN</li>
+    <li>Средний возраст покупателей: {{ average_age|floatformat:1 }}</li>
+    <li>Медианный возраст покупателей: {{ median_age|floatformat:1 }}</li>
+</ul>
+
+<h2>Покупатели по алфавиту</h2>
+<table>
+    <tr><th>ФИО</th><th>Телефон</th><th>Email</th></tr>
+    {% for buyer in buyers %}
+        <tr><td>{{ buyer.full_name }}</td><td>{{ buyer.phone }}</td><td>{{ buyer.email }}</td></tr>
+    {% endfor %}
+</table>
+
+<h2>Продажи по категориям</h2>
+<table>
+    <tr><th>Категория</th><th>Количество</th><th>Сумма</th></tr>
+    {% for row in by_category %}
+        <tr><td>{{ row.property__category__name }}</td><td>{{ row.count }}</td><td>{{ row.total }} BYN</td></tr>
+    {% empty %}
+        <tr><td colspan="3">Нет данных.</td></tr>
+    {% endfor %}
+</table>
+{% if most_profitable_category %}
+    <p>Наибольшую прибыль приносит категория: <strong>{{ most_profitable_category.property__category__name }}</strong>.</p>
+{% endif %}
+{% if most_popular_category %}
+    <p>Самая популярная категория по количеству сделок: <strong>{{ most_popular_category.property__category__name }}</strong>.</p>
+{% endif %}
+<h2>Диаграмма продаж по категориям</h2>
+<table>
+    <tr><th>Категория</th><th>Сумма</th><th>Доля от максимума</th></tr>
+    {% for row in chart_rows %}
+        <tr>
+            <td>{{ row.label }}</td>
+            <td>{{ row.total }} BYN ({{ row.count }})</td>
+            <td><progress max="100" value="{{ row.percent }}">{{ row.percent }}%</progress> {{ row.percent }}%</td>
+        </tr>
+    {% empty %}
+        <tr><td colspan="3">Нет данных для диаграммы.</td></tr>
+    {% endfor %}
+</table>
+{% endblock %}

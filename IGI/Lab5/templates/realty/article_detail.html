@@ -1,0 +1,10 @@
+{% extends "base.html" %}
+{% block title %}{{ article.title }}{% endblock %}
+{% block content %}
+<article>
+    <h1>{{ article.title }}</h1>
+    <p>{{ article.published_at|date:"d/m/Y H:i" }}</p>
+    <p><img src="{{ article.display_image_url }}" alt="{{ article.title }}" width="640"></p>
+    <p>{{ article.body|linebreaks }}</p>
+</article>
+{% endblock %}

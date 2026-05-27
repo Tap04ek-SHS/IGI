@@ -1,0 +1,32 @@
+{% extends "base.html" %}
+{% load tz %}
+{% block title %}{{ property.title }}{% endblock %}
+{% block content %}
+<article>
+    <h1>{{ property.title }}</h1>
+    <p><img src="{{ property.display_image_url }}" alt="{{ property.title }}" width="640"></p>
+    <p>{{ property.description }}</p>
+    <table>
+        <tr><th>Категория</th><td>{{ property.category.name }}</td></tr>
+        <tr><th>Адрес</th><td>{{ property.city }}, {{ property.address }}</td></tr>
+        <tr><th>Цена</th><td>{{ property.price }} BYN</td></tr>
+        <tr><th>Площадь</th><td>{{ property.area }} м2</td></tr>
+        <tr><th>Комнат</th><td>{{ property.rooms }}</td></tr>
+        <tr><th>Этаж</th><td>{{ property.floor }} из {{ property.total_floors }}</td></tr>
+        <tr><th>Статус</th><td>{{ property.get_status_display }}</td></tr>
+        <tr><th>Создано, Europe/Minsk</th><td>{{ property.created_at|timezone:"Europe/Minsk"|date:"d/m/Y H:i" }}</td></tr>
+        <tr><th>Создано, UTC</th><td>{{ property.created_at|timezone:"UTC"|date:"d/m/Y H:i" }}</td></tr>
+        <tr><th>Изменено, Europe/Minsk</th><td>{{ property.updated_at|timezone:"Europe/Minsk"|date:"d/m/Y H:i" }}</td></tr>
+        <tr><th>Изменено, UTC</th><td>{{ property.updated_at|timezone:"UTC"|date:"d/m/Y H:i" }}</td></tr>
+        <tr><th>Удобства</th><td>{% for amenity in property.amenities.all %}{{ amenity.name }}{% if not forloop.last %}, {% endif %}{% empty %}Не указаны{% endfor %}</td></tr>
+    </table>
+    {% if user.is_authenticated and not user.is_staff and property.status == "active" %}
+        <p><a href="{% url 'property_buy_confirm' property.pk %}">Купить</a></p>
+    {% elif not user.is_authenticated and property.status == "active" %}
+        <p><a href="{% url 'login' %}">Войти, чтобы купить</a></p>
+    {% endif %}
+    {% if user.is_staff %}
+        <p><a href="{% url 'property_update' property.pk %}">Изменить</a></p>
+    {% endif %}
+</article>
+{% endblock %}
