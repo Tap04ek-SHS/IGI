@@ -35,16 +35,33 @@
     <p>Самая популярная категория по количеству сделок: <strong>{{ most_popular_category.property__category__name }}</strong>.</p>
 {% endif %}
 <h2>Диаграмма продаж по категориям</h2>
-<table>
-    <tr><th>Категория</th><th>Сумма</th><th>Доля от максимума</th></tr>
-    {% for row in chart_rows %}
-        <tr>
-            <td>{{ row.label }}</td>
-            <td>{{ row.total }} BYN ({{ row.count }})</td>
-            <td><progress max="100" value="{{ row.percent }}">{{ row.percent }}%</progress> {{ row.percent }}%</td>
-        </tr>
-    {% empty %}
-        <tr><td colspan="3">Нет данных для диаграммы.</td></tr>
-    {% endfor %}
-</table>
+{% if charts.sales_by_category %}
+    <figure>
+        <img src="data:image/png;base64,{{ charts.sales_by_category }}" alt="Сумма продаж по категориям" style="max-width: 100%; height: auto;">
+        <figcaption>Сумма продаж по категориям недвижимости.</figcaption>
+    </figure>
+    <figure>
+        <img src="data:image/png;base64,{{ charts.sales_count_by_category }}" alt="Доля сделок по категориям" style="max-width: 100%; height: auto;">
+        <figcaption>Доля сделок по категориям недвижимости.</figcaption>
+    </figure>
+{% else %}
+    <p>Нет данных для графиков по категориям.</p>
+{% endif %}
+
+<h2>Распределения</h2>
+{% if charts.sales_distribution %}
+    <figure>
+        <img src="data:image/png;base64,{{ charts.sales_distribution }}" alt="Распределение сумм сделок" style="max-width: 100%; height: auto;">
+        <figcaption>Распределение сумм сделок.</figcaption>
+    </figure>
+{% endif %}
+{% if charts.buyer_age_distribution %}
+    <figure>
+        <img src="data:image/png;base64,{{ charts.buyer_age_distribution }}" alt="Распределение возраста покупателей" style="max-width: 100%; height: auto;">
+        <figcaption>Распределение возраста покупателей.</figcaption>
+    </figure>
+{% endif %}
+{% if not charts.sales_distribution and not charts.buyer_age_distribution %}
+    <p>Нет данных для графиков распределения.</p>
+{% endif %}
 {% endblock %}

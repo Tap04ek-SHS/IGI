@@ -1,9 +1,11 @@
+import base64
 import calendar
 import hashlib
 import html
 import json
 import logging
 import statistics
+from io import BytesIO
 from datetime import datetime
 from urllib.error import URLError
 from urllib.request import Request, urlopen
@@ -21,6 +23,8 @@ from django.urls import reverse_lazy
 from django.utils import timezone
 from django.views.decorators.http import require_GET, require_POST
 from django.views.generic import CreateView, DeleteView, DetailView, ListView, UpdateView
+from matplotlib.backends.backend_agg import FigureCanvasAgg
+from matplotlib.figure import Figure
 
 from .forms import BuyerForm, PropertyForm, RegistrationForm, ReviewForm, SaleForm
 from .models import (
@@ -38,6 +42,45 @@ from .models import (
 )
 
 logger = logging.getLogger(__name__)
+
+
+def _figure_to_base64(fig):
+    buffer = BytesIO()
+    FigureCanvasAgg(fig).print_png(buffer)
+    return base64.b64encode(buffer.getvalue()).decode("ascii")
+
+
+def _build_bar_chart(labels, values, title, ylabel):
+    fig = Figure(figsize=(8, 4.5), constrained_layout=True)
+    ax = fig.subplots()
+    bars = ax.bar(labels, values, color="#4e79a7")
+    ax.set_title(title)
+    ax.set_ylabel(ylabel)
+    ax.tick_params(axis="x", labelrotation=25)
+    ax.grid(axis="y", linestyle="--", alpha=0.35)
+    ax.bar_label(bars, fmt="%.0f", padding=3)
+    return _figure_to_base64(fig)
+
+
+def _build_pie_chart(labels, values, title):
+    fig = Figure(figsize=(7, 4.5), constrained_layout=True)
+    ax = fig.subplots()
+    ax.pie(values, labels=labels, autopct="%1.1f%%", startangle=90)
+    ax.set_title(title)
+    ax.axis("equal")
+    return _figure_to_base64(fig)
+
+
+def _build_histogram(values, title, xlabel):
+    fig = Figure(figsize=(8, 4.5), constrained_layout=True)
+    ax = fig.subplots()
+    bins = min(8, max(1, len(values)))
+    ax.hist(values, bins=bins, color="#59a14f", edgecolor="white")
+    ax.set_title(title)
+    ax.set_xlabel(xlabel)
+    ax.set_ylabel("Количество")
+    ax.grid(axis="y", linestyle="--", alpha=0.35)
+    return _figure_to_base64(fig)
 
 
 def fetch_json(url, timeout=4):
@@ -427,7 +470,7 @@ def statistics_view(request):
     except statistics.StatisticsError:
         mode = 0
 
-    by_category = (
+    by_category = list(
         sales.values("property__category__name")
         .annotate(total=Sum("final_price"), count=Count("id"))
         .order_by("-total")
@@ -440,16 +483,32 @@ def statistics_view(request):
     )
     chart_labels = [row["property__category__name"] for row in by_category]
     chart_values = [float(row["total"]) for row in by_category]
-    chart_max = max(chart_values) if chart_values else 1
-    chart_rows = [
-        {
-            "label": row["property__category__name"],
-            "total": row["total"],
-            "count": row["count"],
-            "percent": round(float(row["total"]) / chart_max * 100, 1),
-        }
-        for row in by_category
-    ]
+    chart_counts = [row["count"] for row in by_category]
+    charts = {}
+    if chart_values:
+        charts["sales_by_category"] = _build_bar_chart(
+            chart_labels,
+            chart_values,
+            "Сумма продаж по категориям",
+            "Сумма, BYN",
+        )
+        charts["sales_count_by_category"] = _build_pie_chart(
+            chart_labels,
+            chart_counts,
+            "Доля сделок по категориям",
+        )
+    if values:
+        charts["sales_distribution"] = _build_histogram(
+            values,
+            "Распределение сумм сделок",
+            "Сумма сделки, BYN",
+        )
+    if ages:
+        charts["buyer_age_distribution"] = _build_histogram(
+            ages,
+            "Распределение возраста покупателей",
+            "Возраст, лет",
+        )
 
     context = {
         "buyers": Buyer.objects.order_by("full_name"),
@@ -460,11 +519,9 @@ def statistics_view(request):
         "average_age": average_age,
         "median_age": median_age,
         "by_category": by_category,
-        "most_profitable_category": by_category.first(),
+        "most_profitable_category": by_category[0] if by_category else None,
         "most_popular_category": most_popular_category,
-        "chart_labels": json.dumps(chart_labels, ensure_ascii=False),
-        "chart_values": json.dumps(chart_values),
-        "chart_rows": chart_rows,
+        "charts": charts,
     }
     return render(request, "realty/statistics.html", context)
 
